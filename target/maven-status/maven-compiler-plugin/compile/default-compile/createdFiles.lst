@@ -1,0 +1,11 @@
+com/ider/gui/Gui.class
+com/ider/Params.class
+com/ider/gui/LabyrinthGui.class
+com/ider/agents/AgentGui$1.class
+com/ider/agents/AgentGui.class
+com/ider/agents/behaviours/CommunicationAgentBehaviour.class
+com/ider/services/LabyrinthWorldReaderService.class
+com/ider/agents/CommunicationAgent.class
+com/ider/Labyrinth.class
+com/ider/Params$CellValues.class
+com/ider/agents/ExplorerAgent.class
