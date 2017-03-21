@@ -6,7 +6,7 @@ import java.awt.RenderingHints;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import com.ider.Params;
-import com.ider.services.LabyrinthWorldReaderService;
+import com.ider.services.LabyrinthWorldService;
 
 @SuppressWarnings("serial")
 public class LabyrinthGui extends JPanel {
@@ -17,7 +17,7 @@ public class LabyrinthGui extends JPanel {
     
     public LabyrinthGui() {
 		super();
-		labyrinth_world = LabyrinthWorldReaderService.read();
+		labyrinth_world = LabyrinthWorldService.read();
 		
 	}
 
@@ -44,8 +44,8 @@ public class LabyrinthGui extends JPanel {
 	
 	public void update(int x , int y)
 	{
-		this.x = x;
-		this.y = y;
+		this.x = x * Params.cellSize;
+		this.y = y * Params.cellSize;
 		repaint();
 	}
 

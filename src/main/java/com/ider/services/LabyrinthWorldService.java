@@ -4,9 +4,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import com.ider.Params;
-public class LabyrinthWorldReaderService {
+public class LabyrinthWorldService {
 
-	public static final String csvFile= "src/main/resources/labyrinth_world.csv";
+	private static final String csvFile= "src/main/resources/labyrinth_world.csv";
+	private static final Params.CellValues[][] labyrithWorld = generateLabyritnWorld();
 	public static int[][] read()
 	{
         BufferedReader br = null;
@@ -51,4 +52,41 @@ public class LabyrinthWorldReaderService {
         return  labyrinthWorld;
 
 	}
+	
+	private static Params.CellValues[][]  generateLabyritnWorld()
+	{
+		
+		Params.CellValues [][] labyrinthWorld = new Params.CellValues[Params.VERTICAL][Params.HORIZENTAL];
+		int[][] world = read();
+		for(int i = 0; i < Params.VERTICAL; i++)
+		{
+			for(int j = 0; j<Params.HORIZENTAL; j++)
+			{
+				labyrinthWorld[i][j] = Params.CellValues.values()[world[i][j]];
+			}
+		}
+		
+		return labyrinthWorld;
+		
+	}
+	
+	public static Params.CellValues[][]  getLabyritnWorld()
+	{
+		return labyrithWorld;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }

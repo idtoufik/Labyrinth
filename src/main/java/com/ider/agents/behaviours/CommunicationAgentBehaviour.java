@@ -20,10 +20,12 @@ public class CommunicationAgentBehaviour extends CyclicBehaviour{
 
 	@Override
 	public void action() {
-		agent.doWait();
-		ACLMessage message = agent.receive();
-		System.out.println(message.getContent());
-		agent.sendMessage(Params.AgentGui, "those are the positions");
+		ACLMessage message = agent.blockingReceive();
+		//System.out.println(message.getContent());
+		agent.sendMessage(Params.ExplorerAgent, "give me your positions");
+		message = agent.blockingReceive();
+		//System.out.println(message.getContent());
+		agent.sendMessage(Params.AgentGui, message.getContent());
 	}
 
 }
