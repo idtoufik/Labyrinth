@@ -39,6 +39,20 @@ public class ExplorerAgentExploringBehaviour extends FSMBehaviour{
 				System.out.println("reflexion");
 				KnowledgeBase knowledgeBase = ExplorerAgent.getKnowledgeBase();
 				knowledgeBase.iAmHere(agent.getPosition());
+				if(knowledgeBase.iAmOut(agent.getPosition()))
+				{
+					block();
+					return;
+				}
+				ExplorerAgent.Action exitAction = knowledgeBase.getExitingAction(agent.getPosition());
+				
+				if(exitAction != null)
+				{
+					action = exitAction;
+					exitStatus = 0;
+					return;
+				}
+						
 				List<ExplorerAgent.Action> actions = knowledgeBase.getExploringActions(agent.getPosition());
 				
 				if(!actions.isEmpty())

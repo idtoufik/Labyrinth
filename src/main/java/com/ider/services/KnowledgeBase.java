@@ -51,6 +51,33 @@ public class KnowledgeBase {
 		
 	}
 	
+	public Action getExitingAction(Position position)
+	{
+		
+		if(getCellValue(position.getRightPosition()).equals(CellValues.EXIT))
+		{
+			return Action.goRight;
+		}
+		if(getCellValue(position.getUpPosition()).equals(CellValues.EXIT))
+		{
+			return Action.goUp;
+		}
+		if(getCellValue(position.getLeftPosition()).equals(CellValues.EXIT))
+		{
+			return Action.goLeft;
+		}
+		if(getCellValue(position.getDownPosition()).equals(CellValues.EXIT))
+		{
+			return Action.goDown;
+		}
+		return null;
+	}
+	
+	public boolean iAmOut(Position position)
+	{
+		return getCellValue(position).equals(CellValues.EXIT);
+	}
+	
 	public List<ExplorerAgent.Action> getExploringActions(Position position)
 	{
 		List<ExplorerAgent.Action> actionList = new ArrayList<ExplorerAgent.Action>();
@@ -84,7 +111,8 @@ public class KnowledgeBase {
 	private void createIfNotFound(Position source)
 	{
 		Position position = source.getRightPosition();
-		if(findVertex(position) == null)
+		Node node = findVertex(position);
+		if(node == null)
 		{
 			CellValues cellValue = getCellValue(position);
 			if(cellValue == CellValues.NOTHING || cellValue == CellValues.EXIT)
@@ -93,10 +121,15 @@ public class KnowledgeBase {
 				graph.addVertex(newNode);
 				graph.addEdge(findVertex(source), newNode);
 			}
+		}
+		else if(node.getNodeState().equals(NodeState.TO_VISIT))
+		{
+			graph.addEdge(findVertex(source), node);
 		}
 		
 		position = source.getUpPosition();
-		if(findVertex(position) == null)
+		node = findVertex(position);
+		if(node == null)
 		{
 			CellValues cellValue = getCellValue(position);
 			if(cellValue == CellValues.NOTHING || cellValue == CellValues.EXIT)
@@ -105,10 +138,15 @@ public class KnowledgeBase {
 				graph.addVertex(newNode);
 				graph.addEdge(findVertex(source), newNode);
 			}
+		}
+		else if(node.getNodeState().equals(NodeState.TO_VISIT))
+		{
+			graph.addEdge(findVertex(source), node);
 		}
 		
 		position = source.getLeftPosition();
-		if(findVertex(position) == null)
+		node = findVertex(position);
+		if(node == null)
 		{
 			CellValues cellValue = getCellValue(position);
 			if(cellValue == CellValues.NOTHING || cellValue == CellValues.EXIT)
@@ -118,9 +156,14 @@ public class KnowledgeBase {
 				graph.addEdge(findVertex(source), newNode);
 			}
 		}
+		else if(node.getNodeState().equals(NodeState.TO_VISIT))
+		{
+			graph.addEdge(findVertex(source), node);
+		}
 		
 		position = source.getDownPosition();
-		if(findVertex(position) == null)
+		node = findVertex(position);
+		if(node == null)
 		{
 			CellValues cellValue = getCellValue(position);
 			if(cellValue == CellValues.NOTHING || cellValue == CellValues.EXIT)
@@ -129,6 +172,10 @@ public class KnowledgeBase {
 				graph.addVertex(newNode);
 				graph.addEdge(findVertex(source), newNode);
 			}
+		}
+		else if(node.getNodeState().equals(NodeState.TO_VISIT))
+		{
+			graph.addEdge(findVertex(source), node);
 		}
 		
 		
@@ -159,11 +206,13 @@ public class KnowledgeBase {
 		Node sourceNode = findVertex(source);
 		Node nearestNode = null;
 		int minPathLength;
+		System.out.println("source node " + sourceNode);
 		List<Node> toVisit = graph.vertexSet().stream().filter(t -> t.getNodeState().equals(NodeState.TO_VISIT)).collect(Collectors.toList());
 		toVisit.forEach(t ->{
 			BidirectionalDijkstraShortestPath<Node, DefaultWeightedEdge> dp =
 					new BidirectionalDijkstraShortestPath<Node, DefaultWeightedEdge>(graph);
-			System.out.println("pathLength : "+t+" " + dp.getPath(sourceNode, t).getLength());
+			System.out.println("pathLength : "+t+" " + dp.getPathWeight(sourceNode, t));
+			System.out.println("pathLength : "+t+" " + dp.getPathWeight(t,sourceNode));
 		});
 		if(!toVisit.isEmpty())
 		{

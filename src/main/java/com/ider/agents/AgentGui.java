@@ -55,7 +55,7 @@ public class AgentGui  extends GuiAgent{
 					
 					//e.printStackTrace();
 				}
-				gui.getLabyrinthGui().update(position.getX(), position.getY());
+				gui.getLabyrinthGui().update(position);
 				
 			}
 		});

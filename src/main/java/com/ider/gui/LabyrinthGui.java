@@ -6,12 +6,14 @@ import java.awt.RenderingHints;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import com.ider.Params;
+import com.ider.objects.Position;
 import com.ider.services.LabyrinthWorldService;
 
 @SuppressWarnings("serial")
 public class LabyrinthGui extends JPanel {
     int x = 0;
     int y = 0;
+    Position agentPosition = new Position(1,1);
     private static int [][] labyrinth_world;
     
     
@@ -38,7 +40,7 @@ public class LabyrinthGui extends JPanel {
         }
         
         g2d.setColor(new Color(50,200, 200));
-        g2d.fillRect(x, y, Params.cellSize, Params.cellSize);
+        g2d.fillRect(agentPosition.getX()*Params.cellSize, agentPosition.getY()*Params.cellSize, Params.cellSize, Params.cellSize);
         
     }
 	
@@ -49,5 +51,10 @@ public class LabyrinthGui extends JPanel {
 		repaint();
 	}
 
+	public void update(Position position)
+	{
+		agentPosition = position;
+		repaint();
+	}
    
 }
