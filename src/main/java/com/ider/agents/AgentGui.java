@@ -1,10 +1,13 @@
 package com.ider.agents;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 
 import com.ider.Params;
 import com.ider.gui.Gui;
@@ -19,7 +22,6 @@ import jade.lang.acl.ACLMessage;
 @SuppressWarnings("serial")
 public class AgentGui  extends GuiAgent{
 
-	private int x = 1,y = 1;
 	private Gui gui;
 	
 	private void sendMessageToCommunicationAgent()
@@ -41,21 +43,15 @@ public class AgentGui  extends GuiAgent{
 				ACLMessage message = myAgent.blockingReceive();
 				//System.out.println(message.getContent());
 				ObjectMapper objectMapper = new ObjectMapper();
-				Position position = new Position();
+				List<Position> positions = new ArrayList<>();
 				
 				try {
-					position = objectMapper.readValue(message.getContent(), Position.class);
-				} catch (JsonParseException e) {
+					positions = objectMapper.readValue(message.getContent(), new TypeReference<List<Position>>() {});
+				} catch (Exception e) {
 					
-					//e.printStackTrace();
-				} catch (JsonMappingException e) {
-					
-					//e.printStackTrace();
-				} catch (IOException e) {
-					
-					//e.printStackTrace();
-				}
-				gui.getLabyrinthGui().update(position);
+					e.printStackTrace();
+				} 
+				gui.getLabyrinthGui().update(positions);
 				
 			}
 		});

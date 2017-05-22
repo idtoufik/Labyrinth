@@ -27,10 +27,12 @@ public class Labyrinth {
 //			agentArguments[0] = 1;
 //			agentArguments[1] = 'a';
 //			agentArguments[2] = "1";
-			
+			for(int i = 0 ; i < Params.NumberOfExplorerAgents ; i++)
+			{
+				ac = mc.createNewAgent(Params.ExplorerAgent + i, ExplorerAgent.class.getName(), agentArguments);
+				ac.start();
+			}
 			ac = mc.createNewAgent(Params.CommunicationAgent, CommunicationAgent.class.getName(), agentArguments);
-			ac.start();
-			ac = mc.createNewAgent(Params.ExplorerAgent, ExplorerAgent.class.getName(), agentArguments);
 			ac.start();
 			ac = mc.createNewAgent(Params.AgentGui, AgentGui.class.getName(), agentArguments);
 			ac.start();

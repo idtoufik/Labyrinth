@@ -24,4 +24,13 @@ public class CommunicationAgent extends Agent{
 		message.setContent(msg);
 		send(message);
 	}
+	
+	public void sendMessageToGetPosition(String Aid)
+	{
+		ACLMessage message = new ACLMessage(ACLMessage.REQUEST);
+		message.addReceiver(new AID(Aid, AID.ISLOCALNAME));
+		message.setContent("position");
+		message.setOntology("position");
+		send(message);
+	}
 }

@@ -3,10 +3,14 @@ package com.ider.services;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import org.jgrapht.Graphs;
 import org.jgrapht.alg.shortestpath.BidirectionalDijkstraShortestPath;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultWeightedEdge;
@@ -20,11 +24,11 @@ import com.ider.objects.Node;
 import com.ider.objects.Node.NodeState;
 import com.ider.objects.Position;
 
-
 public class KnowledgeBase {
 
 	private SimpleWeightedGraph<Node, DefaultWeightedEdge> graph;
 	private Params.CellValues [][] labyrinthWorld = LabyrinthWorldService.getLabyritnWorld(); 
+	private HashMap<Position, Integer> wayChooser = new HashMap<Position, Integer>();
 	
 	public KnowledgeBase() {
 		
@@ -34,7 +38,7 @@ public class KnowledgeBase {
 	}
 	
 	
-	public void iAmHere(Position position)
+	public synchronized void  iAmHere(Position position)
 	{
 		Node actual = findVertex(position);
 		if(actual == null)
@@ -44,6 +48,7 @@ public class KnowledgeBase {
 		}
 		else
 		{
+			if(actual.getNodeState().equals(NodeState.TO_VISIT))
 			actual.setNodeState(NodeState.VISITED);
 		}
 		
@@ -105,10 +110,12 @@ public class KnowledgeBase {
 	
 	private CellValues getCellValue(Position position)
 	{
-		return labyrinthWorld[position.getY()][position.getX()];
+		if(position.getX()< Params.HORIZENTAL && position.getY() < Params.VERTICAL)
+			return labyrinthWorld[position.getY()][position.getX()];
+		return labyrinthWorld[1][1];
 	}
 	
-	private void createIfNotFound(Position source)
+	private synchronized void createIfNotFound(Position source)
 	{
 		Position position = source.getRightPosition();
 		Node node = findVertex(position);
@@ -201,7 +208,7 @@ public class KnowledgeBase {
 		}).collect(Collectors.toList());
 	}
 	
-	public Node getTheNearestNode(Position source)
+	public synchronized Node getTheNearestNode(Position source)
 	{
 		Node sourceNode = findVertex(source);
 		Node nearestNode = null;
@@ -237,7 +244,7 @@ public class KnowledgeBase {
 	}
 	
 	
-	public List<Action> actionsToGoTo(Position source, Position destination)
+	public synchronized List<Action> actionsToGoTo(Position source, Position destination)
 	{
 		Node sourceNode = findVertex(source);
 		Node destinationNode = findVertex(destination);
@@ -252,6 +259,41 @@ public class KnowledgeBase {
 			tempNode = node;
 		}
 		return actionList;
+	}
+	
+	public synchronized  Action getMyOwnExploringAction(Position position)
+	{
+		List<Action> exploringActions = getExploringActions(position);
+		if(exploringActions.isEmpty())
+		{
+			return null;
+		}
+		else
+		{
+			
+			Node temp = findVertex(position);
+			Integer i = wayChooser.get(temp);
+			if(i == null)
+			{
+				i = 0;
+			}
+			else
+			{
+				i++;
+			}
+			wayChooser.put(temp,i);
+			i = i % exploringActions.size();
+			Action exploringAction = exploringActions.get(i);
+			
+			/*int neighborsNumber = Graphs.neighborListOf(graph, findVertex(position))
+					.size();
+			System.out.println("number of neighbors");
+			Position destination = getPositionAfterAction(position, exploringAction);
+			DefaultWeightedEdge e = graph.getEdge(findVertex(position), findVertex(destination));
+			graph.setEdgeWeight(e, Math.pow(10, neighborsNumber-1));
+			System.out.println("weight"+graph.getEdgeWeight(e));*/
+			return exploringAction;
+		}
 	}
 	public Action Action(Position source, Position destination)
 	{
@@ -273,6 +315,34 @@ public class KnowledgeBase {
 		}
 		
 		return null;
+	}
+	
+	public Position getTheExit()
+	{
+		return graph.vertexSet().stream().filter(t->t.getNodeState().equals(Node.NodeState.EXIT)).findFirst().get();
+	}
+	
+	public Position getPositionAfterAction(Position initial, Action action)
+	{
+		Position position = new Position(initial);
+		if (action.equals(Action.goUp))
+		{
+			position.goUp();
+		}
+		else if (action.equals(Action.goRight))
+		{
+			position.goRight();
+		}
+		else if (action.equals(Action.goDown))
+		{
+			position.goDown();
+		}
+		else if (action.equals(Action.goLeft))
+		{
+			position.goLeft();
+		}
+		
+		return position;
 	}
 
 	

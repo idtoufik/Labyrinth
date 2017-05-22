@@ -23,8 +23,10 @@ public class ExplorerAgentComunicationBehaviour extends CyclicBehaviour{
 		ACLMessage message = agent.receive();
 		if(message != null)
 		{
-			//System.out.println(message.getContent());
-			agent.sendPosition();
+			
+			sendPosition(message);
+			ExitFoundByOthers(message);
+			
 			
 		}
 		else
@@ -33,6 +35,32 @@ public class ExplorerAgentComunicationBehaviour extends CyclicBehaviour{
 		}
 		
 		
+		
+	}
+	
+	private void sendPosition(ACLMessage message)
+	{
+		if(message.getOntology() == null)
+			return;
+		if(!message.getOntology().equals("position") 
+				|| message.getPerformative() != ACLMessage.REQUEST)
+			return;
+				
+		agent.sendPosition();
+	}
+	
+	private void ExitFoundByOthers(ACLMessage message)
+	{
+		if(message.getOntology() == null)
+			return;
+		
+		if(message.getPerformative() != ACLMessage.INFORM)
+			return;
+		
+		if(!message.getOntology().equals("exitFound"))
+			return;
+		System.out.println("exitFoundByOthers");
+		agent.setExitFound(true);
 		
 	}
 

@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.ider.Params;
 import com.ider.agents.ExplorerAgent;
+import com.ider.agents.ExplorerAgent.Action;
 import com.ider.objects.Node;
 import com.ider.objects.Position;
 import com.ider.services.KnowledgeBase;
@@ -24,8 +25,14 @@ public class ExplorerAgentExploringBehaviour extends FSMBehaviour{
 	private static final String Reflexion = "Reflexion";
 	private static final String ModeExecutif = "ModeExecutif";
 	private static final String ModeExploratoire = "ModeExploratoire";
+	private static final String TellOthersExitFound = "TellOthersExitFound";
 	private static final String End = "End";
-	
+	private static final String GoToExit = "GoToExit";
+	private static final String ExecuteExitingAction = "ExecuteExitingAction";
+	public static final int canExplore = 0;
+	public static final int nothingToExplore = 1;
+	public static final int ExitFoundByMe = 2;
+	private static final int exitFoundByOthers = 10;
 
 
 	public ExplorerAgentExploringBehaviour(ExplorerAgent agent) {
@@ -33,7 +40,6 @@ public class ExplorerAgentExploringBehaviour extends FSMBehaviour{
 		this.agent = agent; 
 		registerFirstState(new OneShotBehaviour() {
 			private int exitStatus = 0;
-			
 			@Override
 			public void action() {
 				System.out.println("reflexion");
@@ -41,7 +47,7 @@ public class ExplorerAgentExploringBehaviour extends FSMBehaviour{
 				knowledgeBase.iAmHere(agent.getPosition());
 				if(knowledgeBase.iAmOut(agent.getPosition()))
 				{
-					block();
+					exitStatus = 2;
 					return;
 				}
 				ExplorerAgent.Action exitAction = knowledgeBase.getExitingAction(agent.getPosition());
@@ -52,12 +58,21 @@ public class ExplorerAgentExploringBehaviour extends FSMBehaviour{
 					exitStatus = 0;
 					return;
 				}
-						
-				List<ExplorerAgent.Action> actions = knowledgeBase.getExploringActions(agent.getPosition());
 				
-				if(!actions.isEmpty())
+				if(agent.isExitFound())
 				{
-					action = actions.get(0);
+					exitStatus = exitFoundByOthers;
+					Position exit = knowledgeBase.getTheExit();
+					exitingActionList = knowledgeBase.actionsToGoTo
+							(agent.getPosition(), exit);
+					return;
+				}
+						
+				Action exploringAction = knowledgeBase.getMyOwnExploringAction(agent.getPosition());
+				
+				if(exploringAction != null)
+				{
+					action = exploringAction;
 					exitStatus = 0;
 				}
 				else
@@ -127,17 +142,71 @@ public class ExplorerAgentExploringBehaviour extends FSMBehaviour{
 			public int onEnd() {
 				reset(Params.renderingTime);
 				super.onEnd();
+				if(agent.isExitFound())
+				{
+					KnowledgeBase knowledgeBase = ExplorerAgent.getKnowledgeBase();
+					Position exit = knowledgeBase.getTheExit();
+					exitingActionList = knowledgeBase.actionsToGoTo
+							(agent.getPosition(), exit);
+					return exitFoundByOthers;
+				}
 				return (exitingActionList.isEmpty()) ? 1 : 0;
 			}
 			
 		}, ModeExecutif);
 		
-		registerTransition(Reflexion, ModeExploratoire,0);
+		registerState(new OneShotBehaviour() {
+			
+			@Override
+			public void action() {
+				agent.tellTheOthersExitFound();
+				
+			}
+		}, TellOthersExitFound);
+		
+		registerState(new WakerBehaviour(myAgent, Params.renderingTime) {
+			@Override
+			protected void onWake() {
+				if(!exitingActionList.isEmpty())
+				{
+					agent.performAction(exitingActionList.get(0));
+					exitingActionList.remove(0);
+				}
+			}
+
+			@Override
+			public int onEnd() {
+				reset(Params.renderingTime);
+				super.onEnd();
+				return (exitingActionList.isEmpty()) ? 1 : 0;
+			}
+			
+		}, GoToExit);
+		
+		registerLastState(new OneShotBehaviour(myAgent) {
+			
+			@Override
+			public void action() {
+				System.out.println(this.myAgent.getAID());
+				
+			}
+		}, End);
+		
+
+		
+		registerTransition(Reflexion, ModeExploratoire,canExplore);
 		registerDefaultTransition(ModeExploratoire, Reflexion);
-		registerTransition(Reflexion, ModeExecutif, 1);
+		registerTransition(Reflexion, ModeExecutif, nothingToExplore);
 		registerTransition(ModeExecutif, ModeExecutif, 0);
 		registerTransition(ModeExecutif, Reflexion, 1);
+		registerTransition(Reflexion, TellOthersExitFound, ExitFoundByMe);
+		registerTransition(Reflexion, GoToExit, exitFoundByOthers);
+		registerTransition(ModeExecutif, GoToExit, exitFoundByOthers);
+		registerTransition(GoToExit, GoToExit, 0);
+		registerTransition(GoToExit, End, 1);
+		registerDefaultTransition(TellOthersExitFound, End);
 		
+		//registerTransitionToExit
 		
 	}
 }

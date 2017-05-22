@@ -23,9 +23,10 @@ import jade.lang.acl.ACLMessage;
 public class ExplorerAgent extends Agent{
 	private static KnowledgeBase knowledgeBase = new KnowledgeBase();
 	private Position position = new Position(1,1);
+	private boolean exitFound = false;
 	@Override
 	protected void setup() {
-		ParallelBehaviour pb = new ParallelBehaviour(ParallelBehaviour.WHEN_ANY);
+		ParallelBehaviour pb = new ParallelBehaviour(ParallelBehaviour.WHEN_ALL);
 		pb.addSubBehaviour(new ExplorerAgentComunicationBehaviour(this));
 		pb.addSubBehaviour(new ExplorerAgentExploringBehaviour(this));
 		addBehaviour(pb);
@@ -129,5 +130,22 @@ public class ExplorerAgent extends Agent{
 		
 	}
 	
-	
+	public boolean isExitFound() {
+		return exitFound;
+	}
+
+	public void setExitFound(boolean exitFound) {
+		this.exitFound = exitFound;
+	}
+
+	public void tellTheOthersExitFound()
+	{
+		ACLMessage message = new ACLMessage(ACLMessage.INFORM);
+		message.setOntology("exitFound");
+		for(int i = 0; i< Params.NumberOfExplorerAgents; i++)
+		{
+			message.addReceiver(new AID(Params.ExplorerAgent+i, AID.ISLOCALNAME));
+		}
+		send(message);
+	}
 }

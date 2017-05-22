@@ -3,6 +3,9 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import com.ider.Params;
@@ -11,15 +14,18 @@ import com.ider.services.LabyrinthWorldService;
 
 @SuppressWarnings("serial")
 public class LabyrinthGui extends JPanel {
-    int x = 0;
-    int y = 0;
-    Position agentPosition = new Position(1,1);
+    List<Position> agentPositions ;
     private static int [][] labyrinth_world;
     
     
     public LabyrinthGui() {
 		super();
 		labyrinth_world = LabyrinthWorldService.read();
+		agentPositions = new ArrayList<Position>();
+		for(int i = 0; i < Params.NumberOfExplorerAgents; i++)
+		{
+			agentPositions.add(new Position(1,1));
+		}
 		
 	}
 
@@ -40,21 +46,17 @@ public class LabyrinthGui extends JPanel {
         }
         
         g2d.setColor(new Color(50,200, 200));
-        g2d.fillRect(agentPosition.getX()*Params.cellSize, agentPosition.getY()*Params.cellSize, Params.cellSize, Params.cellSize);
-        
+        for(Position agentPosition : agentPositions)
+        {
+        	g2d.fillRect(agentPosition.getX()*Params.cellSize, agentPosition.getY()*Params.cellSize, Params.cellSize, Params.cellSize);
+        }
     }
 	
-	public void update(int x , int y)
-	{
-		this.x = x * Params.cellSize;
-		this.y = y * Params.cellSize;
-		repaint();
-	}
-
-	public void update(Position position)
-	{
-		agentPosition = position;
-		repaint();
-	}
    
+	
+	public void update(List<Position> positions)
+	{
+		agentPositions = positions;
+		repaint();
+	}
 }
