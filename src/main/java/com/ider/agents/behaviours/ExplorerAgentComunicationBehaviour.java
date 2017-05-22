@@ -1,7 +1,15 @@
 package com.ider.agents.behaviours;
 
+import java.io.IOException;
+
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+
+import com.ider.Params;
 import com.ider.agents.ExplorerAgent;
 
+import jade.core.AID;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;;
 
@@ -61,6 +69,49 @@ public class ExplorerAgentComunicationBehaviour extends CyclicBehaviour{
 			return;
 		System.out.println("exitFoundByOthers");
 		agent.setExitFound(true);
+		
+	}
+	
+	private void giveIntention(ACLMessage message)
+	{
+		if(message.getOntology() == null)
+			return;
+		
+		if(message.getPerformative() != ACLMessage.REQUEST)
+			return;
+		
+		if(!message.getOntology().equals("intention"))
+			return;
+		
+		ACLMessage response = new ACLMessage(ACLMessage.INFORM);
+		response.setOntology("intention");
+		response.addReceiver(message.getSender());
+		ObjectMapper objectMapper = new ObjectMapper();
+		String jsonIntention = "";
+		
+		try {
+			jsonIntention = objectMapper.writeValueAsString(agent.getIntention());
+		} catch (JsonGenerationException e) {
+			
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			
+			e.printStackTrace();
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+		}
+		response.setContent(jsonIntention);
+		myAgent.send(response);
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		
 	}
 

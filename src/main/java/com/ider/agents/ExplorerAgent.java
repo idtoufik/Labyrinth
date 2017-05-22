@@ -1,6 +1,8 @@
 package com.ider.agents;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -17,12 +19,15 @@ import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.ParallelBehaviour;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
+import jade.lang.acl.MessageTemplate.MatchExpression;
 
 
 @SuppressWarnings("serial")
 public class ExplorerAgent extends Agent{
 	private static KnowledgeBase knowledgeBase = new KnowledgeBase();
 	private Position position = new Position(1,1);
+	private Position intention = new Position(1,1);
 	private boolean exitFound = false;
 	@Override
 	protected void setup() {
@@ -103,6 +108,7 @@ public class ExplorerAgent extends Agent{
 	public static KnowledgeBase getKnowledgeBase() {
 		return knowledgeBase;
 	}
+	
 
 
 	
@@ -148,4 +154,14 @@ public class ExplorerAgent extends Agent{
 		}
 		send(message);
 	}
+	
+	public Position getIntention() {
+		return intention;
+	}
+
+	public void setIntention(Position intention) {
+		this.intention = intention;
+	}
+	
+
 }

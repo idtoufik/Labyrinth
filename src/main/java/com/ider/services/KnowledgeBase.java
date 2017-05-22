@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.jgrapht.Graphs;
 import org.jgrapht.alg.shortestpath.BidirectionalDijkstraShortestPath;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
@@ -22,6 +23,10 @@ import com.ider.agents.ExplorerAgent;
 import com.ider.agents.ExplorerAgent.Action;
 import com.ider.objects.Node;
 import com.ider.objects.Node.NodeState;
+
+import jade.core.AID;
+import jade.lang.acl.ACLMessage;
+
 import com.ider.objects.Position;
 
 public class KnowledgeBase {
@@ -344,9 +349,10 @@ public class KnowledgeBase {
 		
 		return position;
 	}
-
 	
+	public synchronized Set<Node>  getNodes()
+	{
+		return graph.vertexSet();
+	}
 	
-	
-
 }

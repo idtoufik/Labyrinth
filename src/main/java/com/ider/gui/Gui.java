@@ -13,7 +13,7 @@ public class Gui extends JFrame{
 		super();
 		labyrinthGui = new LabyrinthGui();
 		add(labyrinthGui);
-		setSize(Params.cellSize*Params.HORIZENTAL, Params.cellSize * Params.VERTICAL);
+		setSize(Params.cellSize*Params.HORIZENTAL * 2 + 20, Params.cellSize * Params.VERTICAL);
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}

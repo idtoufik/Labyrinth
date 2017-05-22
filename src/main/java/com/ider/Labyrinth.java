@@ -22,11 +22,6 @@ public class Labyrinth {
 		AgentController ac;
 		try {
 			Object[] agentArguments = null;
-			// Arguments à passer à l'agent
-//			agentArguments = new Object[3];
-//			agentArguments[0] = 1;
-//			agentArguments[1] = 'a';
-//			agentArguments[2] = "1";
 			for(int i = 0 ; i < Params.NumberOfExplorerAgents ; i++)
 			{
 				ac = mc.createNewAgent(Params.ExplorerAgent + i, ExplorerAgent.class.getName(), agentArguments);

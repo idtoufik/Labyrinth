@@ -3,6 +3,8 @@ package com.ider.agents.behaviours;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.codehaus.jackson.map.ObjectMapper;
+
 import com.ider.Params;
 import com.ider.agents.ExplorerAgent;
 import com.ider.agents.ExplorerAgent.Action;
@@ -10,11 +12,15 @@ import com.ider.objects.Node;
 import com.ider.objects.Position;
 import com.ider.services.KnowledgeBase;
 
+import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.FSMBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.core.behaviours.WakerBehaviour;
+import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
+import jade.lang.acl.MessageTemplate.MatchExpression;
 
 @SuppressWarnings("serial")
 public class ExplorerAgentExploringBehaviour extends FSMBehaviour{
@@ -22,17 +28,19 @@ public class ExplorerAgentExploringBehaviour extends FSMBehaviour{
 	private ExplorerAgent agent;
 	private ExplorerAgent.Action action = null;
 	private List<ExplorerAgent.Action> exitingActionList = new ArrayList<ExplorerAgent.Action>();
-	private static final String Reflexion = "Reflexion";
-	private static final String ModeExecutif = "ModeExecutif";
-	private static final String ModeExploratoire = "ModeExploratoire";
+	private static final String Explore = "Reflexion";
+	private static final String goToUnexploredPlace = "ModeExecutif";
+	private static final String ExecuteExploringAction = "ModeExploratoire";
 	private static final String TellOthersExitFound = "TellOthersExitFound";
 	private static final String End = "End";
 	private static final String GoToExit = "GoToExit";
-	private static final String ExecuteExitingAction = "ExecuteExitingAction";
+	
+	
 	public static final int canExplore = 0;
 	public static final int nothingToExplore = 1;
 	public static final int ExitFoundByMe = 2;
 	private static final int exitFoundByOthers = 10;
+	private static final String ExecuteExitingAction = "ExecuteExitingAction";
 
 
 	public ExplorerAgentExploringBehaviour(ExplorerAgent agent) {
@@ -79,7 +87,6 @@ public class ExplorerAgentExploringBehaviour extends FSMBehaviour{
 				{
 					System.out.println("agent Position: " + agent.getPosition());
 					Node nearestNode= knowledgeBase.getTheNearestNode(agent.getPosition());
-					
 					if(nearestNode != null)
 					{
 						System.out.println("nearest Node"+nearestNode);
@@ -101,7 +108,7 @@ public class ExplorerAgentExploringBehaviour extends FSMBehaviour{
 			
 			
 			
-		}, Reflexion);
+		}, Explore);
 		
 		registerState(new WakerBehaviour(agent, Params.renderingTime) {
 
@@ -125,7 +132,7 @@ public class ExplorerAgentExploringBehaviour extends FSMBehaviour{
 			
 			
 			
-		}, ModeExploratoire);
+		}, ExecuteExploringAction);
 		
 		
 		registerState(new WakerBehaviour(myAgent, Params.renderingTime) {
@@ -153,7 +160,7 @@ public class ExplorerAgentExploringBehaviour extends FSMBehaviour{
 				return (exitingActionList.isEmpty()) ? 1 : 0;
 			}
 			
-		}, ModeExecutif);
+		}, goToUnexploredPlace);
 		
 		registerState(new OneShotBehaviour() {
 			
@@ -194,14 +201,14 @@ public class ExplorerAgentExploringBehaviour extends FSMBehaviour{
 		
 
 		
-		registerTransition(Reflexion, ModeExploratoire,canExplore);
-		registerDefaultTransition(ModeExploratoire, Reflexion);
-		registerTransition(Reflexion, ModeExecutif, nothingToExplore);
-		registerTransition(ModeExecutif, ModeExecutif, 0);
-		registerTransition(ModeExecutif, Reflexion, 1);
-		registerTransition(Reflexion, TellOthersExitFound, ExitFoundByMe);
-		registerTransition(Reflexion, GoToExit, exitFoundByOthers);
-		registerTransition(ModeExecutif, GoToExit, exitFoundByOthers);
+		registerTransition(Explore, ExecuteExploringAction,canExplore);
+		registerDefaultTransition(ExecuteExploringAction, Explore);
+		registerTransition(Explore, goToUnexploredPlace, nothingToExplore);
+		registerTransition(goToUnexploredPlace, goToUnexploredPlace, 0);
+		registerTransition(goToUnexploredPlace, Explore, 1);
+		registerTransition(Explore, TellOthersExitFound, ExitFoundByMe);
+		registerTransition(Explore, GoToExit, exitFoundByOthers);
+		registerTransition(goToUnexploredPlace, GoToExit, exitFoundByOthers);
 		registerTransition(GoToExit, GoToExit, 0);
 		registerTransition(GoToExit, End, 1);
 		registerDefaultTransition(TellOthersExitFound, End);
@@ -209,4 +216,6 @@ public class ExplorerAgentExploringBehaviour extends FSMBehaviour{
 		//registerTransitionToExit
 		
 	}
+	
+	
 }
